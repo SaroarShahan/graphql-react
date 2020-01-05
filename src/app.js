@@ -14,6 +14,7 @@ app.use(bodyParser.json())
 
 // schema
 import Event from './models/Event'
+import User from './models/User'
 
 app.use(
   '/graphql',
@@ -28,6 +29,12 @@ app.use(
           date: String!
         }
 
+        type User {
+          _id: ID!
+          email: String!
+          password: String!
+        }
+
         input EventInput {
           title: String!
           description: String!
@@ -35,12 +42,19 @@ app.use(
           date: String!
         }
 
+        input UserInput {
+          email: String!
+          password: String!
+        }
+
         type Query {
           events: [Event!]!
+          users: [User!]!
         }
 
         type Mutation {
           createEvents(eventInut: EventInput): Event
+          createUsers(userInput: UserInput): User
         }
 
         schema {
@@ -54,6 +68,11 @@ app.use(
           .then(res => res)
           .catch(err => console.log(err))
       },
+      users: () => {
+        return User.find()
+          .then(res => res)
+          .catch(err => console.log(err))
+      },
       createEvents: args => {
         const event = new Event({
           title: args.eventInut.title,
@@ -63,12 +82,21 @@ app.use(
         })
         return event
           .save()
-          .then(res => {
-            return res
-          })
+          .then(res => res)
           .catch(err => {
             console.log(err)
           })
+      },
+      createUsers: args => {
+        const user = new User({
+          email: args.userInput.email,
+          password: args.userInput.password
+        })
+
+        return user
+          .save()
+          .then(res => res)
+          .catch(err => console.log(err))
       }
     },
     graphiql: true
